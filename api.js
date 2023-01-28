@@ -3,7 +3,11 @@ const cors = require('cors');
 const api = express();
 const Model = require('./models/startups');
 const mongoose = require('mongoose');
-const input = require("./input")
+const input = require("./input");
+const bcrypt = require('bcrypt');
+const User = require('./models/users');
+
+const saltRounds = 10;
 
 api.use(express.urlencoded({extended: true}))
 api.use(express.json());
@@ -36,10 +40,6 @@ api.get("/name/:name" , (req,res)=>{
     .catch((err) => console.log(err) )
 })
 
-api.get("/input",(req,res)=>{
-   const response = input();
-   res.status(200).json({message:response})
-})
 
 api.get("/search/:search",async (req,res)=>{
     try{
@@ -52,6 +52,38 @@ api.get("/search/:search",async (req,res)=>{
         res.status(500).json({msg:"Not Found"})
     }
 })
+
+api.post("/signup",(req,res)=>{
+    const {username,password} = req.body;
+    const hash = bcrypt.hashSync(password,saltRounds)
+    const NewUser = new User({
+        username: username,
+        password: hash
+    })
+    NewUser.save();
+    res.status(200).json({message: "SignUp Successful"})
+ })
+
+ api.post("/login",(req,res)=>{
+    const {username,password} = req.body;
+    User.findOne({username: username})
+    .exec()
+    .then((response)=>{
+        const valid = bcrypt.compareSync(password,response.password)
+        if(valid)
+        res.status(200).json({message: "Login Successful"})
+        else
+        res.status(401).json({message:"Invalid Credentials"})
+    })
+    .catch((err)=>console.log(err))
+ })
+
+
+
+ api.get("/input",(req,res)=>{
+    const response = input();
+    res.status(200).json({message:response})
+ })
 
 
 
