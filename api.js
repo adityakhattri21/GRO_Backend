@@ -3,6 +3,7 @@ const cors = require('cors');
 const api = express();
 const Model = require('./models/startups');
 const mongoose = require('mongoose');
+const input = require("./input")
 
 api.use(express.urlencoded({extended: true}))
 api.use(express.json());
@@ -33,6 +34,11 @@ api.get("/name" , (req,res)=>{
     }
     )
     .catch((err) => console.log(err) )
+})
+
+api.get("/input",(req,res)=>{
+   const response = input();
+   res.status(200).json({message:response})
 })
 
 
