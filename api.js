@@ -22,8 +22,8 @@ api.get("/",(req,res)=>{
     })
 })
 
-api.get("/name" , (req,res)=>{
-    const name = req.body.name;
+api.get("/name/:name" , (req,res)=>{
+    const name = req.params.name;
     Model.findOne({Name: name})
     .exec()
     .then(result=>{
@@ -39,6 +39,18 @@ api.get("/name" , (req,res)=>{
 api.get("/input",(req,res)=>{
    const response = input();
    res.status(200).json({message:response})
+})
+
+api.get("/search/:search",async (req,res)=>{
+    try{
+        const {search} = req.params
+        // console.log(req.query)
+        const data = await Model.find({Domain:search})
+        return res.status(200).json(data)
+    } 
+    catch{
+        res.status(500).json({msg:"Not Found"})
+    }
 })
 
 
